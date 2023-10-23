@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -50,6 +51,8 @@ class _DrawWidgetState extends State<DrawWidget> {
   bool showNewWordText = false;
   Game? game;
   bool? minhaVez;
+  int count = 5;
+  late Timer timer;
 
   @override
   void initState() {
@@ -79,11 +82,9 @@ class _DrawWidgetState extends State<DrawWidget> {
   }
 
   void generateWord() {
-    print("isMounted: $mounted");
     if (mounted) {
       int randomIndex = random.nextInt(randomWords.length);
       element = randomWords[randomIndex];
-      print("element: $element");
 
       if (mounted) {
         Future.delayed(const Duration(seconds: 5), () {
@@ -93,12 +94,31 @@ class _DrawWidgetState extends State<DrawWidget> {
             });
           }
         });
+
+        startCountDown();
       }
     }
   }
 
+  void startCountDown() {
+    print("startCountDown: Entering");
+    timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      setState(() {
+        if (mounted && count > 0 && showNewWordText) {
+          count--;
+          print("startCountDown: count = $count");
+        } else {
+          timer.cancel();
+          print("startCountDown: Timer canceled");
+          count = 5;
+        }
+      });
+    });
+  }
+
   @override
   void dispose() {
+    timer.cancel();
     super.dispose();
   }
 
@@ -107,18 +127,25 @@ class _DrawWidgetState extends State<DrawWidget> {
     return Scaffold(
       body: Stack(
         children: [
-          // Adicione o 'if' aqui
-          if (showNewWordText)
+          if (showNewWordText && count > 0)
             Center(
-              child: AnimatedOpacity(
-                duration: const Duration(seconds: 5),
-                opacity: showText ? 1.0 : 0.0,
-                child: Text(
-                  element ?? "batata",
-                  style: const TextStyle(fontSize: 20, color: Colors.black),
-                ),
-              ),
-            ),
+                child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                  Text(
+                    'Prepare-se: $count segundos para começar!',
+                    style: const TextStyle(fontSize: 24),
+                    textAlign: TextAlign.center,
+                  ),
+                  AnimatedOpacity(
+                    duration: const Duration(seconds: 5),
+                    opacity: showText ? 1.0 : 0.0,
+                    child: Text(
+                      "Desennhe a palavra: $element",
+                      style: const TextStyle(fontSize: 24, color: Colors.black),
+                    ),
+                  ),
+                ])),
 
           GestureDetector(
             onPanStart: (details) {
@@ -208,7 +235,6 @@ class _DrawWidgetState extends State<DrawWidget> {
             child: ElevatedButton(
               onPressed: () {
                 setState(() {
-                  print("Apertou o botão");
                   showText = true;
                   showNewWordText = true;
                   generateWord();
