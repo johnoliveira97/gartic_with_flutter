@@ -45,17 +45,15 @@ class _DrawWidgetState extends State<DrawWidget> {
   Random random = Random();
 
   DrawingPoint? currentDrawingPoint;
-  String? element;
+  String? element = "";
   bool showText = true;
+  bool showNewWordText = false;
   Game? game;
   bool? minhaVez;
 
   @override
   void initState() {
     super.initState();
-    print("Entrei aqui");
-    selectRandomWord();
-    wordTimer();
     _configureMethodChannelCallback();
   }
 
@@ -80,27 +78,28 @@ class _DrawWidgetState extends State<DrawWidget> {
     });
   }
 
-  void selectRandomWord() {
-    int randomIndex = random.nextInt(randomWords.length);
-    element = randomWords[randomIndex];
+  void generateWord() {
+    print("isMounted: $mounted");
+    if (mounted) {
+      int randomIndex = random.nextInt(randomWords.length);
+      element = randomWords[randomIndex];
+      print("element: $element");
 
-    setState(() {});
-
-    Center(
-      child: AnimatedOpacity(
-        duration: Duration(seconds: 1),
-        opacity: showText ? 1.0 : 0.0,
-        child: Text("Desenhe: $element", style: TextStyle(fontSize: 20)),
-      ),
-    );
+      if (mounted) {
+        Future.delayed(const Duration(seconds: 5), () {
+          if (mounted) {
+            setState(() {
+              showNewWordText = false;
+            });
+          }
+        });
+      }
+    }
   }
 
-  void wordTimer() {
-    Future.delayed(const Duration(seconds: 5), () {
-      setState(() {
-        showText = false;
-      });
-    });
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   @override
@@ -108,6 +107,19 @@ class _DrawWidgetState extends State<DrawWidget> {
     return Scaffold(
       body: Stack(
         children: [
+          // Adicione o 'if' aqui
+          if (showNewWordText)
+            Center(
+              child: AnimatedOpacity(
+                duration: const Duration(seconds: 5),
+                opacity: showText ? 1.0 : 0.0,
+                child: Text(
+                  element ?? "batata",
+                  style: const TextStyle(fontSize: 20, color: Colors.black),
+                ),
+              ),
+            ),
+
           GestureDetector(
             onPanStart: (details) {
               setState(() {
@@ -196,13 +208,13 @@ class _DrawWidgetState extends State<DrawWidget> {
             child: ElevatedButton(
               onPressed: () {
                 setState(() {
+                  print("Apertou o botão");
                   showText = true;
-                  print("Aqui!");
-                  selectRandomWord();
-                  wordTimer();
+                  showNewWordText = true;
+                  generateWord();
                 });
               },
-              child: Text('Trocar Palavra'),
+              child: const Text('Gerar Palavra'),
             ),
           ),
 
