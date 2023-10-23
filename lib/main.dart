@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gartic_with_flutter/screens/draw.dart';
 import 'package:gartic_with_flutter/screens/game.dart';
 
 void main() {
@@ -11,12 +12,16 @@ class GarticApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Gartic - Flutter',
+      title: 'Flutter - Gartic',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const GameWidget(),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const GameWidget(),
+        '/draw': (context) => const DrawWidget(),
+      },
     );
   }
 }

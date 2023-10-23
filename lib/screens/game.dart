@@ -1,7 +1,7 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:gartic_with_flutter/model/drawing_point.dart';
+import 'package:gartic_with_flutter/model/game.dart';
 
 class GameWidget extends StatefulWidget {
   const GameWidget({super.key});
@@ -11,221 +11,150 @@ class GameWidget extends StatefulWidget {
 }
 
 class _GameWidgetState extends State<GameWidget> {
-  var avaiableColors = [
-    Colors.black,
-    Colors.red,
-    Colors.amber,
-    Colors.blue,
-    Colors.green,
-    Colors.brown
-  ];
-
-  var randomWords = [
-    "banana",
-    "batata",
-    "pato",
-    "vassoura",
-    "lua",
-    "ruiva",
-    "lápis"
-  ];
-
-  var historyDrawingPoints = <DrawingPoint>[];
-  var drawingPoints = <DrawingPoint>[];
-
-  var selectedColor = Colors.black;
-  var selectedWidth = 2.0;
-
-  Random random = Random();
-
-  DrawingPoint? currentDrawingPoint;
-  String? element;
+  static const platform = MethodChannel("game/exchange");
   bool showText = true;
+  Game? game;
+  bool? minhaVez;
 
   @override
   void initState() {
     super.initState();
-    selectRandomWord();
-
-    Future.delayed(Duration(seconds: 3), () {
-      setState(() {
-        showText = false;
-      });
-    });
   }
 
-  void selectRandomWord() {
-    int randomIndex = random.nextInt(randomWords.length);
-    element = randomWords[randomIndex];
+  Widget _buildButton(String label, bool isCreator) => SizedBox(
+        width: 300,
+        child: OutlinedButton(
+            style: ButtonStyle(
+              backgroundColor: MaterialStateProperty.all(Colors.white),
+              shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            ),
+            child: Padding(
+                padding: EdgeInsets.all(8),
+                child: Text(label,
+                    style: TextStyle(fontSize: 36, color: Colors.black))),
+            onPressed: () {
+              _createGame(isCreator);
+            }),
+      );
+
+  Future _createGame(bool isCreator) {
+    final editingController = TextEditingController();
+    return showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text("Qual o nome do jogo?"),
+            content: TextField(
+              controller: editingController,
+            ),
+            actions: [
+              ElevatedButton(
+                  onPressed: () async {
+                    Navigator.pop(context);
+                    final result = await _sendAction(
+                        "subscribe", {"channel": editingController.text});
+                    if (result) {
+                      setState(() {
+                        game = Game(editingController.text, isCreator);
+                        minhaVez = isCreator;
+                      });
+                    }
+                    goToNextRoute(context, '/draw');
+                  },
+                  child: const Text("Jogar")),
+              ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text("Cancelar"))
+            ],
+          );
+        });
+  }
+
+  Future<bool> _sendAction(
+      String action, Map<String, dynamic> arguments) async {
+    try {
+      final result = await platform.invokeMethod(action, arguments);
+      if (result) {
+        return true;
+      }
+    } on PlatformException catch (e) {
+      print("Ocorreu erro ao enviar ação para o nativo: $e");
+    }
+
+    return false;
   }
 
   @override
   Widget build(BuildContext context) {
+    var text = "Flutter - Gartic";
     return Scaffold(
-      body: Stack(
+      backgroundColor: Colors.blue,
+      body: SingleChildScrollView(
+          child: Stack(
         children: [
-          GestureDetector(
-            onPanStart: (details) {
-              setState(() {
-                currentDrawingPoint = DrawingPoint(
-                    id: DateTime.now().microsecondsSinceEpoch,
-                    offsets: [
-                      details.localPosition,
-                    ],
-                    color: selectedColor,
-                    width: selectedWidth);
-
-                if (currentDrawingPoint == null) return;
-                drawingPoints.add(currentDrawingPoint!);
-                historyDrawingPoints = List.of(drawingPoints);
-              });
-            },
-            onPanUpdate: (details) {
-              setState(() {
-                if (currentDrawingPoint == null) return;
-
-                currentDrawingPoint = currentDrawingPoint?.copyWith(
-                  offsets: currentDrawingPoint!.offsets
-                    ..add(details.localPosition),
-                );
-                drawingPoints.last = currentDrawingPoint!;
-                historyDrawingPoints = List.of(drawingPoints);
-              });
-            },
-            onPanEnd: (_) {
-              currentDrawingPoint = null;
-            },
-            child: CustomPaint(
-              painter: DrawingPainter(
-                drawingPoints: drawingPoints,
-              ),
-              child: SizedBox(
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height,
-              ),
-            ),
-          ),
-
-          Center(
-              child: AnimatedOpacity(
-                  duration: Duration(seconds: 1),
-                  opacity: showText ? 1.0 : 0.0,
-                  child: Text("Desenhe: $element",
-                      style: TextStyle(fontSize: 20)))),
-
-          /// color pallet
-          Positioned(
-            top: MediaQuery.of(context).padding.top,
-            left: 16,
-            right: 16,
-            child: SizedBox(
-              height: 80,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                itemCount: avaiableColors.length,
-                separatorBuilder: (_, __) {
-                  return const SizedBox(width: 8);
-                },
-                itemBuilder: (context, index) {
-                  return GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        selectedColor = avaiableColors[index];
-                      });
-                    },
-                    child: Container(
-                      width: 32,
-                      height: 32,
-                      decoration: BoxDecoration(
-                        color: avaiableColors[index],
-                        shape: BoxShape.circle,
-                      ),
-                      foregroundDecoration: BoxDecoration(
-                        border: selectedColor == avaiableColors[index]
-                            ? Border.all(color: Color(0xFF1C3E66), width: 4)
-                            : null,
-                        shape: BoxShape.circle,
-                      ),
+          SizedBox(
+              height: 1000,
+              width: 700,
+              child: Center(
+                  child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                    Center(
+                      child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              text,
+                              style: const TextStyle(
+                                  fontSize: 30, color: Colors.yellow),
+                            )
+                          ]),
                     ),
-                  );
-                },
-              ),
-            ),
-          ),
-
-          Positioned(
-            top: 40,
-            right: -3,
-            child: ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  showText = true;
-                  selectRandomWord();
-
-                  Future.delayed(Duration(seconds: 3), () {
-                    setState(() {
-                      showText = false;
-                    });
-                  });
-                });
-              },
-              child: Text('Trocar Palavra'),
-            ),
-          ),
-
-          /// pencil size
-          Positioned(
-            top: MediaQuery.of(context).padding.top + 80,
-            right: 0,
-            bottom: 150,
-            child: RotatedBox(
-              quarterTurns: 3, // 270 degree
-              child: Slider(
-                value: selectedWidth,
-                min: 1,
-                max: 20,
-                onChanged: (value) {
-                  setState(() {
-                    selectedWidth = value;
-                  });
-                },
-              ),
-            ),
-          ),
+                    const SizedBox(height: 300),
+                    (game == null
+                        ? Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                                _buildButton("Criar", true),
+                                const SizedBox(height: 10),
+                                _buildButton("Entrar", false),
+                              ])
+                        : InkWell(
+                            child: Text(
+                            minhaVez == true
+                                ? "Sua vez de desenhar!!"
+                                : "Aguarde sua vez de desenhar!!",
+                            style: TextStyle(fontSize: 20, color: Colors.black),
+                          )))
+                  ]))),
         ],
-      ),
-      floatingActionButton: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          FloatingActionButton(
-            heroTag: "Undo",
-            onPressed: () {
-              if (drawingPoints.isNotEmpty && historyDrawingPoints.isNotEmpty) {
-                setState(() {
-                  drawingPoints.removeLast();
-                });
-              }
-            },
-            child: const Icon(Icons.undo),
-          ),
-          const SizedBox(width: 16),
-          FloatingActionButton(
-            heroTag: "Redo",
-            onPressed: () {
-              setState(() {
-                if (drawingPoints.length < historyDrawingPoints.length) {
-                  // 6 length 7
-                  final index = drawingPoints.length;
-                  drawingPoints.add(historyDrawingPoints[index]);
-                }
-              });
-            },
-            child: const Icon(Icons.redo),
-          ),
-        ],
-      ),
+      )),
     );
   }
+
+  goToNextRoute(BuildContext context, String route) {
+    return Navigator.pushNamed(context, route);
+  }
+}
+
+Widget _buildGameScaffold() {
+  return Scaffold();
+}
+
+Widget _buildWelcomeScaffold() {
+  return Scaffold(
+    backgroundColor: Colors.blue,
+    body: SingleChildScrollView(),
+  );
 }
 
 class DrawingPainter extends CustomPainter {
