@@ -91,6 +91,7 @@ class _DrawWidgetState extends State<DrawWidget> {
           if (mounted) {
             setState(() {
               showNewWordText = false;
+              count = 5;
             });
           }
         });
@@ -104,13 +105,12 @@ class _DrawWidgetState extends State<DrawWidget> {
     print("startCountDown: Entering");
     timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
-        if (mounted && count > 0 && showNewWordText) {
+        if (count > 0) {
           count--;
           print("startCountDown: count = $count");
         } else {
           timer.cancel();
           print("startCountDown: Timer canceled");
-          count = 5;
         }
       });
     });
@@ -127,7 +127,7 @@ class _DrawWidgetState extends State<DrawWidget> {
     return Scaffold(
       body: Stack(
         children: [
-          if (showNewWordText && count > 0)
+          if (showNewWordText && count >= 0)
             Center(
                 child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
