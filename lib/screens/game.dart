@@ -1,5 +1,6 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:gartic_with_flutter/model/drawing_point.dart';
 
 class GameWidget extends StatefulWidget {
@@ -35,9 +36,28 @@ class _GameWidgetState extends State<GameWidget> {
   var selectedColor = Colors.black;
   var selectedWidth = 2.0;
 
-  DrawingPoint? currentDrawingPoint;
+  Random random = Random();
 
-  static const platform = MethodChannel("game/exchange");
+  DrawingPoint? currentDrawingPoint;
+  String? element;
+  bool showText = true;
+
+  @override
+  void initState() {
+    super.initState();
+    selectRandomWord();
+
+    Future.delayed(Duration(seconds: 3), () {
+      setState(() {
+        showText = false;
+      });
+    });
+  }
+
+  void selectRandomWord() {
+    int randomIndex = random.nextInt(randomWords.length);
+    element = randomWords[randomIndex];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,13 +68,12 @@ class _GameWidgetState extends State<GameWidget> {
             onPanStart: (details) {
               setState(() {
                 currentDrawingPoint = DrawingPoint(
-                  id: DateTime.now().microsecondsSinceEpoch,
-                  offsets: [
-                    details.localPosition,
-                  ],
-                  color: selectedColor,
-                  width: selectedWidth,
-                );
+                    id: DateTime.now().microsecondsSinceEpoch,
+                    offsets: [
+                      details.localPosition,
+                    ],
+                    color: selectedColor,
+                    width: selectedWidth);
 
                 if (currentDrawingPoint == null) return;
                 drawingPoints.add(currentDrawingPoint!);
@@ -86,6 +105,13 @@ class _GameWidgetState extends State<GameWidget> {
               ),
             ),
           ),
+
+          Center(
+              child: AnimatedOpacity(
+                  duration: Duration(seconds: 1),
+                  opacity: showText ? 1.0 : 0.0,
+                  child: Text("Desenhe: $element",
+                      style: TextStyle(fontSize: 20)))),
 
           /// color pallet
           Positioned(
@@ -124,6 +150,26 @@ class _GameWidgetState extends State<GameWidget> {
                   );
                 },
               ),
+            ),
+          ),
+
+          Positioned(
+            top: 40,
+            right: -3,
+            child: ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  showText = true;
+                  selectRandomWord();
+
+                  Future.delayed(Duration(seconds: 3), () {
+                    setState(() {
+                      showText = false;
+                    });
+                  });
+                });
+              },
+              child: Text('Trocar Palavra'),
             ),
           ),
 
@@ -203,8 +249,6 @@ class DrawingPainter extends CustomPainter {
           final current = drawingPoint.offsets[i];
           final next = drawingPoint.offsets[i + 1];
           canvas.drawLine(current, next, paint);
-        } else {
-          /// we do nothing
         }
       }
     }
