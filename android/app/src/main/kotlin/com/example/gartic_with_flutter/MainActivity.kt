@@ -37,8 +37,8 @@ class MainActivity: FlutterActivity() {
         handler = Handler(Looper.getMainLooper())
 
         val pnConfiguration = PNConfiguration("MyUniqueUUID")
-        pnConfiguration.subscribeKey = "sub-c-dc33facf-5a0d-4b2c-b181-12efd4fce532"
-        pnConfiguration.publishKey = "pub-c-13a4b6be-e22f-4e5e-95aa-0972bc680cae"
+        pnConfiguration.subscribeKey = ""
+        pnConfiguration.publishKey = ""
 
         pubNub = PubNub(pnConfiguration)
 
@@ -57,6 +57,8 @@ class MainActivity: FlutterActivity() {
 
                     var receivedObject: String? = null
                     var actionReceived = "sendAction"
+
+                    print("Estou aqui no Kotlin: " + pnMessage.message)
 
                     if(pnMessage.message.asJsonObject["tap"] !== null){
                         receivedObject = pnMessage.message.asJsonObject["tap"].toString()
