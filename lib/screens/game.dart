@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gartic_with_flutter/model/drawing_point.dart';
-import 'package:gartic_with_flutter/model/game.dart';
 
 class GameWidget extends StatefulWidget {
   const GameWidget({super.key});
@@ -13,8 +12,6 @@ class GameWidget extends StatefulWidget {
 class _GameWidgetState extends State<GameWidget> {
   static const platform = MethodChannel("game/exchange");
   bool showText = true;
-  Game? game;
-  bool? minhaVez;
 
   @override
   void initState() {
@@ -60,8 +57,6 @@ class _GameWidgetState extends State<GameWidget> {
                         "subscribe", {"channel": editingController.text});
                     if (result) {
                       setState(() {
-                        game = Game(editingController.text, isCreator);
-                        minhaVez = isCreator;
                         goToNextRoute(context, '/draw');
                       });
                     }
@@ -120,19 +115,11 @@ class _GameWidgetState extends State<GameWidget> {
                           ]),
                     ),
                     const SizedBox(height: 300),
-                    (game == null
-                        ? Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                                _buildButton("Criar", true),
-                              ])
-                        : InkWell(
-                            child: Text(
-                            minhaVez == true
-                                ? "Hora de desenhar!!"
-                                : "Hora de advinhar!!",
-                            style: TextStyle(fontSize: 20, color: Colors.black),
-                          )))
+                    Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          _buildButton("Criar", true),
+                        ])
                   ]))),
         ],
       )),
