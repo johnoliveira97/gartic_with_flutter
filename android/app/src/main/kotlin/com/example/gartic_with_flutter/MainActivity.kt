@@ -58,8 +58,7 @@ class MainActivity: FlutterActivity() {
                     var receivedObject: String? = null
                     var actionReceived = "sendAction"
 
-                    print("Estou aqui no Kotlin: " + pnMessage.message)
-
+                    
                     if(pnMessage.message.asJsonObject["tap"] !== null){
                         receivedObject = pnMessage.message.asJsonObject["tap"].toString()
                     }
@@ -80,15 +79,7 @@ class MainActivity: FlutterActivity() {
 
         val methodChannel = MethodChannel(flutterEngine!!.dartExecutor.binaryMessenger, METHOD_CHANNEL)
         methodChannel.setMethodCallHandler { call, result ->
-            if(call.method == "sendAction"){
-                pubNub!!.publish()
-                    .message(call.arguments)
-                    .channel(channel_pubnub)
-                    .async{
-                        _, status -> Log.d("Pubnub", "Teve erro? ${status.isError}")
-                    }
-                    result.success(true)
-            }else if(call.method == "subscribe"){
+            if(call.method == "subscribe"){
                 Log.d("MethodChannel", "Received call: ${call.method}")
                 subscribeChannel(call.argument<String>("channel"))
                 result.success(true)

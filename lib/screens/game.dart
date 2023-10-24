@@ -62,9 +62,9 @@ class _GameWidgetState extends State<GameWidget> {
                       setState(() {
                         game = Game(editingController.text, isCreator);
                         minhaVez = isCreator;
+                        goToNextRoute(context, '/draw');
                       });
                     }
-                    goToNextRoute(context, '/draw');
                   },
                   child: const Text("Jogar")),
               ElevatedButton(
@@ -125,14 +125,12 @@ class _GameWidgetState extends State<GameWidget> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                                 _buildButton("Criar", true),
-                                const SizedBox(height: 10),
-                                _buildButton("Entrar", false),
                               ])
                         : InkWell(
                             child: Text(
                             minhaVez == true
-                                ? "Sua vez de desenhar!!"
-                                : "Aguarde sua vez de desenhar!!",
+                                ? "Hora de desenhar!!"
+                                : "Hora de advinhar!!",
                             style: TextStyle(fontSize: 20, color: Colors.black),
                           )))
                   ]))),
@@ -144,17 +142,6 @@ class _GameWidgetState extends State<GameWidget> {
   goToNextRoute(BuildContext context, String route) {
     return Navigator.pushNamed(context, route);
   }
-}
-
-Widget _buildGameScaffold() {
-  return Scaffold();
-}
-
-Widget _buildWelcomeScaffold() {
-  return Scaffold(
-    backgroundColor: Colors.blue,
-    body: SingleChildScrollView(),
-  );
 }
 
 class DrawingPainter extends CustomPainter {

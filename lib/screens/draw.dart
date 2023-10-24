@@ -2,10 +2,8 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:gartic_with_flutter/model/drawing_point.dart';
 import 'package:gartic_with_flutter/model/game.dart';
-import 'package:gartic_with_flutter/model/message.dart';
 import 'package:gartic_with_flutter/screens/game.dart';
 
 class DrawWidget extends StatefulWidget {
@@ -16,8 +14,6 @@ class DrawWidget extends StatefulWidget {
 }
 
 class _DrawWidgetState extends State<DrawWidget> {
-  static const platform = MethodChannel("game/exchange");
-
   var avaiableColors = [
     Colors.black,
     Colors.red,
@@ -33,7 +29,7 @@ class _DrawWidgetState extends State<DrawWidget> {
     "pato",
     "vassoura",
     "lua",
-    "ruiva",
+    "mar",
     "lápis"
   ];
 
@@ -50,35 +46,12 @@ class _DrawWidgetState extends State<DrawWidget> {
   bool showText = true;
   bool showNewWordText = false;
   Game? game;
-  bool? minhaVez;
   int count = 5;
   late Timer timer;
 
   @override
   void initState() {
     super.initState();
-    _configureMethodChannelCallback();
-  }
-
-  _configureMethodChannelCallback() {
-    platform.setMethodCallHandler((call) async {
-      print("Voltou para o flutter: $call");
-
-      final action = call.method;
-      final arguments = call.arguments.toString().replaceAll("\"", "");
-      final splitted = arguments.split("|");
-
-      if (action == "sendAction") {
-        final message = Message(splitted[0], element!);
-
-        if (message.user == (game!.creator ? 'p2' : 'p1')) {
-          setState(() {
-            minhaVez = true;
-            element;
-          });
-        }
-      }
-    });
   }
 
   void generateWord() {
@@ -91,7 +64,6 @@ class _DrawWidgetState extends State<DrawWidget> {
           if (mounted) {
             setState(() {
               showNewWordText = false;
-              count = 5;
             });
           }
         });
@@ -102,15 +74,13 @@ class _DrawWidgetState extends State<DrawWidget> {
   }
 
   void startCountDown() {
-    print("startCountDown: Entering");
+    count = 5;
     timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
         if (count > 0) {
           count--;
-          print("startCountDown: count = $count");
         } else {
           timer.cancel();
-          print("startCountDown: Timer canceled");
         }
       });
     });
@@ -218,7 +188,8 @@ class _DrawWidgetState extends State<DrawWidget> {
                       ),
                       foregroundDecoration: BoxDecoration(
                         border: selectedColor == avaiableColors[index]
-                            ? Border.all(color: Color(0xFF1C3E66), width: 4)
+                            ? Border.all(
+                                color: const Color(0xFF1C3E66), width: 4)
                             : null,
                         shape: BoxShape.circle,
                       ),
@@ -296,19 +267,5 @@ class _DrawWidgetState extends State<DrawWidget> {
         ],
       ),
     );
-  }
-
-  Future<bool> _sendAction(
-      String action, Map<String, dynamic> arguments) async {
-    try {
-      final result = await platform.invokeMethod(action, arguments);
-      if (result) {
-        return true;
-      }
-    } on PlatformException catch (e) {
-      print("Ocorreu erro ao enviar ação para o nativo: $e");
-    }
-
-    return false;
   }
 }
