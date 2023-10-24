@@ -119,19 +119,21 @@ class _DrawWidgetState extends State<DrawWidget> {
 
           GestureDetector(
             onPanStart: (details) {
-              setState(() {
-                currentDrawingPoint = DrawingPoint(
-                    id: DateTime.now().microsecondsSinceEpoch,
-                    offsets: [
-                      details.localPosition,
-                    ],
-                    color: selectedColor,
-                    width: selectedWidth);
+              if (count == 0) {
+                setState(() {
+                  currentDrawingPoint = DrawingPoint(
+                      id: DateTime.now().microsecondsSinceEpoch,
+                      offsets: [
+                        details.localPosition,
+                      ],
+                      color: selectedColor,
+                      width: selectedWidth);
 
-                if (currentDrawingPoint == null) return;
-                drawingPoints.add(currentDrawingPoint!);
-                historyDrawingPoints = List.of(drawingPoints);
-              });
+                  if (currentDrawingPoint == null) return;
+                  drawingPoints.add(currentDrawingPoint!);
+                  historyDrawingPoints = List.of(drawingPoints);
+                });
+              }
             },
             onPanUpdate: (details) {
               setState(() {
@@ -206,6 +208,7 @@ class _DrawWidgetState extends State<DrawWidget> {
             child: ElevatedButton(
               onPressed: () {
                 setState(() {
+                  drawingPoints.clear();
                   showText = true;
                   showNewWordText = true;
                   generateWord();
