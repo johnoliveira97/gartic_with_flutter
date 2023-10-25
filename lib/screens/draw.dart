@@ -3,7 +3,6 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:gartic_with_flutter/model/drawing_point.dart';
-import 'package:gartic_with_flutter/model/game.dart';
 import 'package:gartic_with_flutter/screens/game.dart';
 
 class DrawWidget extends StatefulWidget {
@@ -45,7 +44,6 @@ class _DrawWidgetState extends State<DrawWidget> {
   String? element = "";
   bool showText = true;
   bool showNewWordText = false;
-  Game? game;
   int count = 5;
   late Timer timer;
 
