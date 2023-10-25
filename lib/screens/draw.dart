@@ -129,7 +129,7 @@ class _DrawWidgetState extends State<DrawWidget> {
                     duration: const Duration(seconds: 5),
                     opacity: showText ? 1.0 : 0.0,
                     child: Text(
-                      "Desennhe a palavra: $element",
+                      "Desenhe a palavra: $element",
                       style: const TextStyle(fontSize: 24, color: Colors.black),
                     ),
                   ),
