@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gartic_with_flutter/screens/draw.dart';
 import 'package:gartic_with_flutter/screens/game.dart';
+import 'package:gartic_with_flutter/screens/sucesso.dart';
 
 void main() {
   runApp(const GarticApp());
@@ -19,6 +20,7 @@ class GarticApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: {
+        '/success': (context) => const SucessoWidget(),
         '/': (context) => const GameWidget(),
         '/draw': (context) => const DrawWidget(),
       },
