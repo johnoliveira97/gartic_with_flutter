@@ -275,11 +275,13 @@ class _DrawWidgetState extends State<DrawWidget> {
                               hintText: 'Digite sua resposta',
                               labelText: 'Resposta: ',
                             ),
-                            onSaved: (String? text) {
-                              print(text);
-                            },
-                            onFieldSubmitted: (_) async {
-                              print("asdadda");
+                            onFieldSubmitted: (String? text) async {
+                              if (text.toString().toLowerCase() ==
+                                  element.toString().toLowerCase()) {
+                                Navigator.pushNamed(context, '/success');
+                              } else {
+                                Navigator.pushNamed(context, '/error');
+                              }
                             })),
                   ),
                 ),
