@@ -48,8 +48,9 @@ class _DrawWidgetState extends State<DrawWidget> {
   bool showNewWordText = false;
   bool canDraw = false;
   bool isGuessing = false;
+  bool clicked = false;
   int count = 5;
-  int countToGuess = 30;
+  int countToGuess = 20;
   late Timer timer;
 
   @override
@@ -61,6 +62,7 @@ class _DrawWidgetState extends State<DrawWidget> {
     if (mounted) {
       int randomIndex = random.nextInt(randomWords.length);
       element = randomWords[randomIndex];
+      clicked = true;
 
       if (mounted) {
         Future.delayed(const Duration(seconds: 5), () {
@@ -78,13 +80,14 @@ class _DrawWidgetState extends State<DrawWidget> {
   }
 
   void timeToGuess() {
-    countToGuess = 10;
+    countToGuess = 20;
     timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
         if (count == 0 && countToGuess > 0) {
           countToGuess--;
         } else if (countToGuess == 0) {
           isGuessing = true;
+          clicked = false;
           timer.cancel();
         }
       });
@@ -115,6 +118,18 @@ class _DrawWidgetState extends State<DrawWidget> {
     return Scaffold(
       body: Stack(
         children: [
+          if (clicked && count == 0)
+            Center(
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Text(
+                      '$countToGuess',
+                      style: const TextStyle(fontSize: 24),
+                      textAlign: TextAlign.left,
+                    )
+                  ]),
+            ),
           if (showNewWordText && count >= 0)
             Center(
                 child: Column(

@@ -14,16 +14,16 @@ class _AlertPageWidgetState extends State<AlertPageWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
         body: AlertDialog(
-          title: Text(widget.titulo),
-          content: Image.asset(
-            widget.imagem,
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () => Navigator.pushNamed(context, '/draw'),
-              child: const Text('Continuar'),
-            ),
-          ],
-        ));
+      title: Text(widget.titulo),
+      content: Image.asset(
+        widget.imagem,
+      ),
+      actions: <Widget>[
+        TextButton(
+          onPressed: () => Navigator.pushNamed(context, '/draw'),
+          child: const Text('Novo Jogo'),
+        ),
+      ],
+    ));
   }
 }
