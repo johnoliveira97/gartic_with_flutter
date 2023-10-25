@@ -22,7 +22,7 @@ class _GameWidgetState extends State<GameWidget> {
         width: 300,
         child: OutlinedButton(
             style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.all(Colors.white),
+              backgroundColor: MaterialStateProperty.all(Colors.blueGrey[100]),
               shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                 RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
@@ -32,7 +32,7 @@ class _GameWidgetState extends State<GameWidget> {
             child: Padding(
                 padding: EdgeInsets.all(8),
                 child: Text(label,
-                    style: TextStyle(fontSize: 36, color: Colors.black))),
+                    style: TextStyle(fontSize: 16, color: Colors.black))),
             onPressed: () {
               _createGame(isCreator);
             }),
@@ -59,6 +59,7 @@ class _GameWidgetState extends State<GameWidget> {
                       setState(() {
                         goToNextRoute(context, '/draw');
                       });
+                      goToNextRoute(context, '/draw');
                     }
                   },
                   child: const Text("Jogar")),
@@ -88,41 +89,27 @@ class _GameWidgetState extends State<GameWidget> {
 
   @override
   Widget build(BuildContext context) {
-    var text = "Flutter - Gartic";
+    var text = "Flutter - Adivinhação";
     return Scaffold(
-      backgroundColor: Colors.blue,
-      body: SingleChildScrollView(
-          child: Stack(
-        children: [
-          SizedBox(
-              height: 1000,
-              width: 700,
-              child: Center(
-                  child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                    Center(
-                      child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text(
-                              text,
-                              style: const TextStyle(
-                                  fontSize: 30, color: Colors.yellow),
-                            )
-                          ]),
-                    ),
-                    const SizedBox(height: 300),
-                    Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          _buildButton("Criar", true),
-                        ])
-                  ]))),
-        ],
-      )),
+      appBar: AppBar(
+        title: Text(text),
+        backgroundColor: Colors.blueGrey[100],
+      ),
+      backgroundColor: const Color.fromRGBO(150, 240, 238, 1),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(
+              'images/home.jpeg',
+            ),
+            Padding(
+              padding: EdgeInsets.all(8),
+              child: _buildButton('Clique para iniciar', true),
+            )
+          ],
+        ),
+      ),
     );
   }
 

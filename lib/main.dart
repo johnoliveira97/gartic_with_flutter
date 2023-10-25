@@ -13,7 +13,7 @@ class GarticApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter - Gartic',
+      title: 'Flutter - Adivinhação',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
@@ -27,6 +27,7 @@ class GarticApp extends StatelessWidget {
         '/': (context) => const GameWidget(),
         '/draw': (context) => const DrawWidget(),
       },
+      debugShowCheckedModeBanner: false,
     );
   }
 }
