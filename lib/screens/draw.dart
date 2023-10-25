@@ -13,6 +13,8 @@ class DrawWidget extends StatefulWidget {
 }
 
 class _DrawWidgetState extends State<DrawWidget> {
+  GlobalKey<FormState> formKey = GlobalKey<FormState>();
+
   var avaiableColors = [
     Colors.black,
     Colors.red,
@@ -44,7 +46,10 @@ class _DrawWidgetState extends State<DrawWidget> {
   String? element = "";
   bool showText = true;
   bool showNewWordText = false;
+  bool canDraw = false;
+  bool isGuessing = false;
   int count = 5;
+  int countToGuess = 30;
   late Timer timer;
 
   @override
@@ -67,8 +72,23 @@ class _DrawWidgetState extends State<DrawWidget> {
         });
 
         startCountDown();
+        timeToGuess();
       }
     }
+  }
+
+  void timeToGuess() {
+    countToGuess = 10;
+    timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      setState(() {
+        if (count == 0 && countToGuess > 0) {
+          countToGuess--;
+        } else if (countToGuess == 0) {
+          isGuessing = true;
+          timer.cancel();
+        }
+      });
+    });
   }
 
   void startCountDown() {
@@ -117,7 +137,7 @@ class _DrawWidgetState extends State<DrawWidget> {
 
           GestureDetector(
             onPanStart: (details) {
-              if (count == 0) {
+              if (count == 0 && !isGuessing) {
                 setState(() {
                   currentDrawingPoint = DrawingPoint(
                       id: DateTime.now().microsecondsSinceEpoch,
@@ -240,31 +260,59 @@ class _DrawWidgetState extends State<DrawWidget> {
       floatingActionButton: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          FloatingActionButton(
-            heroTag: "Undo",
-            onPressed: () {
-              if (drawingPoints.isNotEmpty && historyDrawingPoints.isNotEmpty) {
-                setState(() {
-                  drawingPoints.removeLast();
-                });
-              }
-            },
-            child: const Icon(Icons.undo),
-          ),
-          const SizedBox(width: 16),
-          FloatingActionButton(
-            heroTag: "Redo",
-            onPressed: () {
-              setState(() {
-                if (drawingPoints.length < historyDrawingPoints.length) {
-                  // 6 length 7
-                  final index = drawingPoints.length;
-                  drawingPoints.add(historyDrawingPoints[index]);
+          if (isGuessing)
+            SizedBox(
+              width: 200,
+              child: Center(
+                child: Card(
+                  elevation: 5,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Form(
+                        key: formKey,
+                        child: TextFormField(
+                            decoration: const InputDecoration(
+                              hintText: 'Digite sua resposta',
+                              labelText: 'Resposta: ',
+                            ),
+                            onSaved: (String? text) {
+                              print(text);
+                            },
+                            onFieldSubmitted: (_) async {
+                              print("asdadda");
+                            })),
+                  ),
+                ),
+              ),
+            ),
+          if (!isGuessing)
+            FloatingActionButton(
+              heroTag: "Undo",
+              onPressed: () {
+                if (drawingPoints.isNotEmpty &&
+                    historyDrawingPoints.isNotEmpty) {
+                  setState(() {
+                    drawingPoints.removeLast();
+                  });
                 }
-              });
-            },
-            child: const Icon(Icons.redo),
-          ),
+              },
+              child: const Icon(Icons.undo),
+            ),
+          const SizedBox(width: 16),
+          if (!isGuessing)
+            FloatingActionButton(
+              heroTag: "Redo",
+              onPressed: () {
+                setState(() {
+                  if (drawingPoints.length < historyDrawingPoints.length) {
+                    // 6 length 7
+                    final index = drawingPoints.length;
+                    drawingPoints.add(historyDrawingPoints[index]);
+                  }
+                });
+              },
+              child: const Icon(Icons.redo),
+            ),
         ],
       ),
     );
